@@ -1,24 +1,70 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useState, useEffect } from "react";
+import Form from "./components/Form";
+
+import "./App.css";
+import ImageList from "./components/ImageList";
 
 function App() {
+  const [search, setSearch] = useState("");
+  const [images, setImages] = useState([]);
+  const [actualPage, setActualPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+
+  useEffect(() => {
+    const apiRequest = async () => {
+      if (search === "") {
+        return;
+      }
+
+      const imagesPerPage = 25;
+      const key = "18522339-f87e6af0793b479a079ab3aa0";
+      const url = `https://pixabay.com/api/?key=${key}&q=${search}&per_page=${imagesPerPage}&page=${actualPage}`;
+
+      const response = await fetch(url);
+      const result = await response.json();
+      console.log(result);
+      setImages(result.hits);
+
+      const calculateTotalPages = Math.ceil(result.totalHits / imagesPerPage);
+      setTotalPages(calculateTotalPages);
+    };
+
+    apiRequest();
+  }, [search, actualPage]);
+
+  const previousPage = () => {
+    const newActualPage = actualPage - 1;
+    if (newActualPage === 0) return;
+    setActualPage(newActualPage);
+  };
+
+  const nextPage = () => {
+    const newActualPage = actualPage + 1;
+    if (newActualPage > totalPages) return;
+    setActualPage(newActualPage);
+  };
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <div className="container">
+        <div className="jumbotron">
+          <p className=" lead text-center">Buscador de Imágenes</p>
+          <Form setSearch={setSearch} />
+        </div>
+        <div className="row justify-content-center">
+          <ImageList images={images} />
+          {actualPage === 1 ? null : (
+            <button className="bbtn btn-info mr-1 p-1" onClick={previousPage}>
+              Anterior &laquo;
+            </button>
+          )}
+          {actualPage === totalPages ? null : (
+            <button className="bbtn btn-info mr-1 p-1" onClick={nextPage}>
+              Siguiente &raquo;
+            </button>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

@@ -27,17 +27,22 @@ function App() {
 
       const calculateTotalPages = Math.ceil(result.totalHits / imagesPerPage);
       setTotalPages(calculateTotalPages);
+
+      const jumbotron = document.querySelector(".jumbotron");
+      jumbotron.scrollIntoView({ behavior: "smooth" });
     };
-
+    //Call the function
     apiRequest();
-  }, [search, actualPage]);
+  }, [search, actualPage]); //Dependencies
 
+  //Previous Function
   const previousPage = () => {
     const newActualPage = actualPage - 1;
     if (newActualPage === 0) return;
     setActualPage(newActualPage);
   };
 
+  //Next Function
   const nextPage = () => {
     const newActualPage = actualPage + 1;
     if (newActualPage > totalPages) return;
